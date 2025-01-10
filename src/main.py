@@ -27,7 +27,24 @@ class Pieces:
         return 'piece {} {}'.format(self.kind, self.color)
     
 
+def draw_board(grid:list[list[8]],screen):#TODO
+    """
+    The function draw board uses pygame to display a chess board. For now it is just 
+    """
+    block_size=SIZE_BLOCK
+    color = [WHITE,BLACK]
+    offset=1
+    
+    for i in range(0,8):
 
+        for j in range(0,8,2):
+            rect=pygame.Rect(START_WIDTH+(j+offset)*block_size,START_HEIGHT+ i*block_size,block_size,block_size)
+            
+            pygame.draw.rect(screen,BLACK,rect)
+        if offset==1:
+            offset=0
+        else:
+            offset =1
 
 def create_piece (position:list[2],color,kind) -> Pieces:
     """
