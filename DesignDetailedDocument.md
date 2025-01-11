@@ -30,7 +30,21 @@ The draw_board function uses pygame to draw an 8x8 chess board game on a white s
 The drawing iterates over an 8 length range and then over the even numbers of \[0-8). However since the board has a diagonal pattern there is an offset that changes every row, making some rect blocks in \[0,2,4,6] and others in \[1,3,5,7]
 The function is also not finished because I would like to add the pieces icon in the rect objects somehow. Currently I am investigating the pygame Sprite. 
 
+### Define valid_movements(grid,piece):
 
+    Valid movements returns a list of all the legal movements a piece save kings and pawns can make in the specific state of the board.
+
+    It receives the state of the board and the piece that we want to move. Then it checks if the piece is valid except for the position because the position will be out of 
+    range when we want to terminate. Similarly to a depth first search algorithm. 
+
+    For each piece it starts iterating over the possible movements which are movements[0]. These represent a kinght's l shape movement, the bishop's diagonal ... It makes one movement
+    at a time. The number of times the piece does a movements is limited by the type of piece. If they can move limitlessly then they will have a 8 times iterator, for example
+    queens and rooks, however if they can only move once in a direction like the knight the top will be 2 , because python's range is up to but not including. 
+    If a movement is  valid  aka it is either an empty square then it continues to the next. 
+    The base cases are
+    If it's out of bounds then it will end the loop for that move direction. 
+    If it's within bounds and reach a piece whose color is different than the piece parameter then that position is added but break afterwards. 
+    Finally if it's a piece of it's own color then it stops that direction. 
 
 
 
