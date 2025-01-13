@@ -14,7 +14,8 @@ class Pieces:
     position:list[2] #FIRST Y THEN X coordinate
     kind:int
     color:str 
-    movements=[[[(0,1),(-1,1),(1,1),(0,2)],2], #Movements of kind 0:pawn
+    history=0
+    movements=[[[(1,0),(-1,1),(1,1),(-1,-1),(1,-1),(-1,0),(2,0),(-2,0)],2], #Movements of kind 0:pawn
                [[(0,1),(1,0),(0,-1),(-1,0)],8], #Movements of kind 1: Rook
                [[(1,2),(-1,2),(1,-2),(-1,-2),(2,1),(2,-1),(-2,1),(-2,-1)],2],#Movements of kind 2: Knight
                [[(1,1),(-1,1),(-1,-1),(1,-1)],8],#Movements of kind 3: Bishop
@@ -114,7 +115,7 @@ def init_board():
     board[7][3]=create_piece([7,3],'b',4)# Create the Queens
 
     board[0][4]=create_piece([0,4],'w',5)# Create the Kings
-    board[7][4]=create_piece([0,4],'w',5)# Create the Kings
+    board[7][4]=create_piece([0,4],'b',5)# Create the Kings
     return board
 def print_board(board) -> None:
     """
@@ -130,8 +131,51 @@ def king_movements(king):
     pass
 
 
-def pawn_movements(pawn):
-    pass
+def pawn_movements(board,pawn):
+    sol=[]
+    y,x=pawn.position
+
+    
+
+    if pawn.color =='b':
+    
+        if 0<=x-1 <8 and 0<=y-1 <8 :
+            if board[y-1][x-1] != 0:
+                if board[y-1][x-1].color =='w':
+                    sol.append((-1,-1))
+        if 0<=x+1<8 and 0<=y-1<8:
+             if board[y-1][x+1] != 0:
+                if board[y-1][x+1].color =='w':
+                    sol.append((-1,-1))
+
+        if 0<=x <8 and 0<=y-1<8:
+            if board[y-1][x] ==0:
+                sol.append((-1,0))
+                if pawn.history == 0 and 0<=y-2 <8 and board[y-2][x]==0:
+                    sol.append((-2,0))
+    elif pawn.color =='w':
+    
+        if 0<=x-1 <8 and 0<=y+1 <8 :
+            if board[y+1][x-1] != 0:
+                if board[y+1][x-1].color =='b':
+                    sol.append((1,-1))
+        if 0<=x+1<8 and 0<=y+1<8:
+             if board[y+1][x+1] != 0:
+                if board[y+1][x+1].color =='b':
+                    sol.append((1,1))
+
+        if 0<=x <8 and 0<=y+1<8:
+            if board[y+1][x] ==0:
+                sol.append((1,0))
+                if pawn.history == 0 and 0<=y+2 <8 and board[y+2][x]==0:
+                    sol.append((2,0))
+    
+
+    
+    return sol
+                
+
+
 
 
 def valid_movements(board,piece:Pieces) -> list:
@@ -158,7 +202,7 @@ def valid_movements(board,piece:Pieces) -> list:
     if piece.kind==5:
         return king_movements()
     elif piece.kind==0:
-        return pawn_movements()
+        return pawn_movements(board,piece)
         
     y,x=piece.position
     sol=[]
@@ -166,8 +210,8 @@ def valid_movements(board,piece:Pieces) -> list:
 
     for move in movements[0]:
         for i in range(1,movements[1]):
-            mov_x=x+i*move[0]
-            mov_y=y+i*move[1]
+            mov_x=x+i*move[1]
+            mov_y=y+i*move[0]
             if (0<=mov_x <8) & (0<= mov_y<8): # Check we are still in the board
                 if board[mov_y][mov_x] ==0:
                     sol.append([mov_y,mov_x])
@@ -184,8 +228,78 @@ def valid_movements(board,piece:Pieces) -> list:
     return sol
 
 
-def play():
+def movable_pieces(board,color):
+    color_pieces=[]
+    index=0
+    for i in range(len(board)):
+        for j in range(len(board)):
+            if(board[i][j] != 0):
+                if(board[i][j].color ==color):
+                    color_pieces.append(board[i][j])
+                    index+=1
+    return color_pieces
+
+def make_move(board,turn_color,playing:int):
+    list_move_pieces= movable_pieces(board,turn_color)
+    for index,i in enumerate(list_move_pieces):
+        print(i, i.position , index)
+    print_board(board)
+    choice=int(input(" \n \n \n What piece do you want to move, choose the index : "))
+    
+    option,piece = valid_movements(board,list_move_pieces[choice]),list_move_pieces[choice]
+    while not option: 
+        
+        print_board(board)
+        print(list_move_pieces)
+        choice=int(input("What piece do you want to move, choose the index : \n \n \n"))
+        option,piece = valid_movements(board,list_move_pieces[choice]),list_move_pieces[choice]
+        list_move_pieces.pop(choice)
+        if not list_move_pieces:
+            playing=0
+            print("You have no possible moves it is a draw")
+
+    print_board(board)
+    print(option)
+    print(piece.position)
+    move_choice = int(input("Choose what movement you want to make \n \n \n "))
+    
+    #board[piece.position[0]][piece.position[1]],board[option[move_choice][0]][option[move_choice][1]] =0,board[piece.position[0]][piece.position[1]]
+    # Step 1: Store the value of the piece in a temporary variable
+    temp = board[piece.position[0]][piece.position[1]]
+
+    # Step 2: Update the board positions
+    board[piece.position[0]][piece.position[1]] = 0
+    board[piece.position[0]+option[move_choice][0]][piece.position[1]+option[move_choice][1]] = temp
+    
+    piece.position=[option[move_choice][0],option[move_choice][1]]
+    piece.history+=1
+    
+    print(board[piece.position[0]][piece.position[1]])
+    if turn_color =='b':
+        return 'w'
+    else:
+        return 'b'
+
+   
+    
+
+def choose_move():
     pass
+def play(board):
+    turn_color = 'b' #Current color that moves. 
+    playing=1
+    #draw_board(board) when draw board works correctly
+    while playing:
+        turn_color=make_move(board,turn_color,playing)
+
+
+        
+        
+        
+        
+            
+
+   
 
 def main():
    #pygame.init()
@@ -193,6 +307,7 @@ def main():
    #SCREEN.fill(WHITE)
     board=init_board()
     print_board(board)
+    play(board)
 
     #while True: 
     #    draw_board(board,SCREEN)

@@ -49,3 +49,7 @@ The function is also not finished because I would like to add the pieces icon in
 
 
 
+## 13/01/2025
+### Define pawn's valid movements: 
+The pawns valid movements is a decision tree where we check all the possible movements for a pawn. So long as it is not en peassant ( still workign on it). 
+It first checks the color of the pawn, and from there whether it can take any piece, finally if it can move forward at all, 1 or 2 tiles. 
